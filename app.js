@@ -17,7 +17,9 @@ async function loadVideos() {
   }
 }
 
-function parseCSV(csv) {
+function parseCSV(csv
+
+) {
   const lines = csv.split('\n').slice(1);
   const videos = [];
   
@@ -42,10 +44,13 @@ function displayVideos(videos) {
   listDiv.innerHTML = '';
   
   videos.forEach((video, index) => {
+    const imageId = video.imageLink.match(/\/d\/([^\/]+)/)[1];
+    const imageSrc = `https://drive.google.com/uc?export=view&id=${imageId}`;
+    
     const item = document.createElement('div');
     item.className = 'video-item' + (index === 0 ? ' active' : '');
     item.innerHTML = `
-      <img src="${video.imageLink.replace('/view?usp=sharing', '/preview')}" alt="${video.name}">
+      <img src="${imageSrc}" alt="${video.name}">
       <div class='video-item-title'>${video.name}</div>
     `;
     item.onclick = () => playVideo(video, index, videos);
@@ -56,9 +61,7 @@ function displayVideos(videos) {
 function playVideo(video, index, videos) {
   const fileId = video.videoLink.match(/\/d\/([^\/]+)/)[1];
   const embedUrl = `https://drive.google.com/file/d/${fileId}/preview`;
-  
-
-document.getElementById('videoPlayer').src = embedUrl;
+  document.getElementById('videoPlayer').src = embedUrl;
   
   if (videos) {
     document.querySelectorAll('.video-item').forEach((item, i) => {
