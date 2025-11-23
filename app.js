@@ -17,9 +17,7 @@ async function loadVideos() {
   }
 }
 
-function parseCSV(csv
-
-) {
+function parseCSV(csv) {
   const lines = csv.split('\n').slice(1);
   const videos = [];
   
@@ -44,8 +42,10 @@ function displayVideos(videos) {
   listDiv.innerHTML = '';
   
   videos.forEach((video, index) => {
-    const imageId = video.imageLink.match(/\/d\/([^\/]+)/)[1];
-    const imageSrc = `https://drive.google.com/uc?export=view&id=${imageId}`;
+    const imageId = video
+
+.imageLink.match(/\/d\/([^\/]+)/)[1];
+    const imageSrc = `/.netlify/functions/proxy?id=${imageId}`;
     
     const item = document.createElement('div');
     item.className = 'video-item' + (index === 0 ? ' active' : '');
