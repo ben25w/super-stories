@@ -1,2 +1,0 @@
-/*
-  Content-Security-Policy: default-src 'self' https:; script-src 'self' 'unsafe-inline'; img-src 'self' https: data:; frame-src https://drive.google.com; connect-src 'self' https://docs.google.com https://drive.google.com
