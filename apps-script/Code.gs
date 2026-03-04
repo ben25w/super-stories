@@ -37,11 +37,13 @@ function syncFormResponses() {
   var form = FormApp.openByUrl(formUrl);
   var responses = form.getResponses();
 
-  // Build a list of video names already in the sheet so we don't add duplicates
+  // Build a list of story names already in the sheet so we don't add duplicates.
+  // The sheet has columns: Timestamp (A), Story name (B), Video file (C), Photo file (D)
+  // So story names are in column 2 (index 2 in getRange)
   var existingNames = [];
   var lastRow = sheet.getLastRow();
   if (lastRow >= 2) {
-    var nameColumn = sheet.getRange(2, 1, lastRow - 1, 1).getValues();
+    var nameColumn = sheet.getRange(2, 2, lastRow - 1, 1).getValues();
     nameColumn.forEach(function(row) {
       existingNames.push(row[0].toString().trim().toLowerCase());
     });
@@ -57,8 +59,10 @@ function syncFormResponses() {
       var title = item.getItem().getTitle().toLowerCase();
       var value = item.getResponse();
 
+      // Matches: "Story name", "Story Name", "Video name", "Video Name"
       if (title.indexOf('story name') !== -1 || title.indexOf('video name') !== -1) {
         storyName = value.toString().trim();
+      // Matches: "Video file", "Video File", "Video"
       } else if (title.indexOf('video') !== -1) {
         // File upload responses return an array of file IDs
         if (Array.isArray(value)) {
@@ -66,7 +70,8 @@ function syncFormResponses() {
         } else {
           videoFileId = value;
         }
-      } else if (title.indexOf('thumbnail') !== -1 || title.indexOf('image') !== -1 || title.indexOf('picture') !== -1) {
+      // Matches: "Photo file", "Photo File", "Thumbnail", "Image", "Picture"
+      } else if (title.indexOf('photo') !== -1 || title.indexOf('thumbnail') !== -1 || title.indexOf('image') !== -1 || title.indexOf('picture') !== -1) {
         if (Array.isArray(value)) {
           imageFileId = value[0];
         } else {
