@@ -34,7 +34,13 @@ For the two file upload questions, make sure "Allow only specific file types" is
 2. Click Extensions > Apps Script.
 3. Delete any code already in the editor.
 4. Copy the entire contents of `Code.gs` (from this folder) and paste it in.
-5. Click the save icon (or press Ctrl+S). Give the project a name like "Super Stories Sync".
+5. Check the `SHEET_ID` value near the top of the script. It should be only the ID portion of your sheet URL, nothing else. Your sheet URL looks like this:
+
+   `https://docs.google.com/spreadsheets/d/1SsA-novHL6gokBSpv6xZ39ClFC4MYfUS-OnRfGV4F1A/edit?gid=0`
+
+   The ID is the part between `/d/` and `/edit`. Copy only that part, with no slashes, question marks, or anything after it. It should look like a long string of letters and numbers with no spaces.
+
+6. Click the save icon (or press Ctrl+S). Give the project a name like "Super Stories Sync".
 
 ---
 

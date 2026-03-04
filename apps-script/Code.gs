@@ -9,7 +9,11 @@
 // CONFIGURATION - update these two values before you do anything else
 // -----------------------------------------------------------------------
 
-// The ID of your Google Sheet (the part of the URL between /d/ and /edit)
+// The ID of your Google Sheet.
+// IMPORTANT: paste ONLY the ID below, nothing else from the URL.
+// Your sheet URL looks like: https://docs.google.com/spreadsheets/d/SHEET_ID/edit...
+// Copy only the part between /d/ and /edit
+// Example: '1SsA-novHL6gokBSpv6xZ39ClFC4MYfUS-OnRfGV4F1A'
 var SHEET_ID = '1SsA-novHL6gokBSpv6xZ39ClFC4MYfUS-OnRfGV4F1A';
 
 // The name of the sheet tab where stories are listed (usually "Sheet1")
@@ -20,7 +24,9 @@ var SHEET_TAB = 'Sheet1';
 // -----------------------------------------------------------------------
 
 function syncFormResponses() {
-  var sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName(SHEET_TAB);
+  // Strip anything after the ID in case extra URL text was accidentally included
+  var cleanId = SHEET_ID.split('/')[0].split('?')[0].split('#')[0].trim();
+  var sheet = SpreadsheetApp.openById(cleanId).getSheetByName(SHEET_TAB);
   var formUrl = sheet.getParent().getFormUrl();
 
   if (!formUrl) {
