@@ -19,20 +19,54 @@ async function loadVideos() {
   }
 }
 
+// Extract a Google Drive file ID from any common Drive URL format:
+//   https://drive.google.com/file/d/FILE_ID/view
+//   https://drive.google.com/open?id=FILE_ID
+//   https://drive.google.com/uc?id=FILE_ID
+function extractFileId(url) {
+  if (!url) return null;
+  // Match /d/FILE_ID
+  const slashMatch = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+  if (slashMatch) return slashMatch[1];
+  // Match ?id=FILE_ID or &id=FILE_ID
+  const idMatch = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+  if (idMatch) return idMatch[1];
+  return null;
+}
+
 function parseCSV(csv) {
-  const lines = csv.split('\n').slice(1);
+  const lines = csv.split('\n');
+  if (lines.length < 2) return [];
+
+  // Read the header row to find column positions dynamically
+  const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, '').toLowerCase());
+
+  const nameIdx   = headers.findIndex(h => h.includes('name'));
+  const videoIdx  = headers.findIndex(h => h.includes('video'));
+  const imageIdx  = headers.findIndex(h => h.includes('photo') || h.includes('image') || h.includes('thumbnail'));
+
+  if (nameIdx === -1 || videoIdx === -1 || imageIdx === -1) {
+    console.error('Could not find expected columns. Headers found:', headers);
+    return [];
+  }
+
   const videos = [];
 
-  lines.forEach(line => {
-    if (line.trim()) {
-      const [name, videoLink, imageLink] = line.split(',').map(s => s.trim());
-      if (name && videoLink && imageLink) {
-        videos.push({
-          name: name.replace(/"/g, ''),
-          videoLink: videoLink.replace(/"/g, ''),
-          imageLink: imageLink.replace(/"/g, '')
-        });
-      }
+  lines.slice(1).forEach(line => {
+    if (!line.trim()) return;
+
+    // Handle quoted CSV fields that may contain commas
+    const cols = line.match(/(".*?"|[^,]+)(?=,|$)/g);
+    if (!cols) return;
+
+    const clean = cols.map(s => s.trim().replace(/^"|"$/g, ''));
+
+    const name       = clean[nameIdx]  || '';
+    const videoLink  = clean[videoIdx] || '';
+    const imageLink  = clean[imageIdx] || '';
+
+    if (name && videoLink && imageLink) {
+      videos.push({ name, videoLink, imageLink });
     }
   });
 
@@ -48,7 +82,9 @@ function displayVideos(videos) {
   }
 
   videos.forEach(video => {
-    const imageId = video.imageLink.match(/\/d\/([^\/]+)/)[1];
+    const imageId = extractFileId(video.imageLink);
+    if (!imageId) return;
+
     const imageSrc = `/.netlify/functions/proxy?id=${imageId}`;
 
     const card = document.createElement('div');
@@ -72,7 +108,9 @@ function displayVideos(videos) {
 }
 
 function openModal(video) {
-  const fileId = video.videoLink.match(/\/d\/([^\/]+)/)[1];
+  const fileId = extractFileId(video.videoLink);
+  if (!fileId) return;
+
   player.src = `https://drive.google.com/file/d/${fileId}/preview`;
   modalTitle.textContent = video.name;
   overlay.classList.add('open');
